@@ -135,3 +135,10 @@ export async function getFontEmbedCSS<T extends HTMLElement>(
 ): Promise<string> {
   return getWebFontCSS(node, options)
 }
+
+// eslint-disable-next-line import/no-mutable-exports
+export let convertUrlToBase64: (url: string) => string
+
+export function setDataUrlConverter(convertFn: (url: string) => string): void {
+  convertUrlToBase64 = convertFn
+}

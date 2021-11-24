@@ -1,6 +1,6 @@
 import { Options } from './options'
 import { parseDataUrlContent } from './util'
-import { convertUrlToBase64 } from './index'
+import { convertUrlToBase64, convertUrlToResponse } from './index'
 
 export interface Metadata {
   blob: string
@@ -64,16 +64,20 @@ export function getBlobFromURL(
   }
 
   // eslint-disable-next-line no-shadow
-  const convertUrl = async (url: string): Promise<string> => {
-    if (convertUrlToBase64 && url.indexOf(window.location.origin) !== 0) {
-      return convertUrlToBase64(url)
+  const fetchUrl = async (url: string): Promise<Response> => {
+    if (url.indexOf(window.location.origin) !== 0) {
+      if (convertUrlToBase64) {
+        return convertUrlToBase64(url).then((dataUrl) => fetch(dataUrl))
+      }
+      if (convertUrlToResponse) {
+        return convertUrlToResponse(url)
+      }
     }
-    return url
+    return fetch(url)
   }
 
-  const deferred = convertUrl(url)
+  const deferred = fetchUrl(url)
     // eslint-disable-next-line no-shadow
-    .then((url) => fetch(url))
     .then((res) =>
       // eslint-disable-next-line promise/no-nesting
       res.blob().then((blob) => ({
